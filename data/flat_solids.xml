@@ -306,9 +306,9 @@
         <tag>ornate</tag>
         <description>72-faced Renaissance favourite</description>
         <url source="George Hart">http://www.georgehart.com/virtual-polyhedra/conway_notation.html</url>
-        <name>k12tk12tk12tk12tP12</name>
+        <name>k12dk12dk12dk12P12</name>
         <conway>
-            <formula>k(12)dk(12)dk(12)dk(12)P(12)</formula>
+            <formula>k12dk12dk12dk12P12</formula>
         </conway>
         
     </solid>
@@ -955,7 +955,7 @@
         <name>Small Stellated Dodecahedron</name>
         <name>Stellated Dodecahedron</name>
         <conway>
-            <formula>k(1)D</formula>
+            <formula>k(h=1)D</formula>
         </conway>
         <tag>Kepler-Poinsot</tag>
         <tag>concave</tag>
@@ -975,7 +975,7 @@
         <name>Great Stellated Dodecahedron</name>
         <name>Stellated Great Dodecahedron</name>
         <conway>
-            <formula>k(1.6)I</formula>
+            <formula>k(h=1.6)I</formula>
         </conway>
         <tag>Kepler-Poinsot</tag>
         <tag>concave</tag>
@@ -994,7 +994,7 @@
         <dmccooey/>
         <name>Great Dodecahedron</name>
         <conway>
-            <formula>k(-0.2)I</formula>
+            <formula>k(h=-0.2)I</formula>
         </conway>
         <tag>Kepler-Poinsot</tag>
         <tag>concave</tag>
@@ -1017,7 +1017,7 @@
         <dmccooey/>
         <name>Great Icosahedron</name>
         <conway>
-            <formula comment="only an approximation - wrong">k(-0.2)k(1)D</formula>
+            <formula comment="only an approximation - wrong">k(h=-0.2)k(h=1)D</formula>
         </conway>
         <tag>Kepler-Poinsot</tag>
         <tag>concave</tag>
@@ -2384,7 +2384,7 @@
         <name>Triangular Prism</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(3)</formula>
+            <formula>P3</formula>
         </conway>
         <geometry>
             <Vertices count="6"/>
@@ -2400,7 +2400,7 @@
         <name>Square Prism (Cube)</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(4)</formula>
+            <formula>P4</formula>
         </conway>
         <geometry>
             <Vertices count="8"/>
@@ -2415,7 +2415,7 @@
         <name>Pentagonal Prism</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(5)</formula>
+            <formula>P5</formula>
         </conway>
         <model>
             <path>PentagonalPrism.stl</path>
@@ -2434,7 +2434,7 @@
         <name>Hexagonal Prism</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(6)</formula>
+            <formula>P6</formula>
         </conway>
         <geometry>
             <Vertices count="12"/>
@@ -2450,7 +2450,7 @@
         <name>Heptagonal Prism</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(7)</formula>
+            <formula>P7</formula>
         </conway>
         <geometry>
             <Vertices count="14"/>
@@ -2466,7 +2466,7 @@
         <name>Octagonal Prism</name>
         <tag>Prisms</tag>
         <conway>
-            <formula>P(8)</formula>
+            <formula>P8</formula>
         </conway>
         <geometry>
             <Vertices count="16"/>
@@ -2483,7 +2483,7 @@
         <name>Octahedron</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(3)</formula>
+            <formula>A3</formula>
         </conway>
         <geometry>
             <Vertices count="6"/>
@@ -2498,7 +2498,7 @@
         <name>Square Antiprism</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(4)</formula>
+            <formula>A4</formula>
         </conway>
         <geometry>
             <Vertices count="8"/>
@@ -2514,7 +2514,7 @@
         <name>Pentagonal Antiprism</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(5)</formula>
+            <formula>A5</formula>
         </conway>
         <geometry>
             <Vertices count="10"/>
@@ -2530,7 +2530,7 @@
         <name>Hexagonal Antiprism</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(6)</formula>
+            <formula>A6</formula>
         </conway>
         <geometry>
             <Vertices count="12"/>
@@ -2546,7 +2546,7 @@
         <name>Heptagonal Antiprism</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(7)</formula>
+            <formula>A7</formula>
         </conway>
         <geometry>
             <Vertices count="14"/>
@@ -2562,7 +2562,7 @@
         <name>Octagonal Antiprism</name>
         <tag>Antiprisms</tag>
         <conway>
-            <formula>A(8)</formula>
+            <formula>A8</formula>
         </conway>
         <geometry>
             <Vertices count="16"/>
@@ -2577,7 +2577,7 @@
         <name>Triangular Pyramid</name>
         <name>Tetrahedron</name>
         <conway>
-            <formula>Y(3)</formula>
+            <formula>Y3</formula>
         </conway>
         <tag>Pyramids</tag>
     </solid>
@@ -2586,7 +2586,7 @@
         <name>Square Pyramid</name>
         <name>J1</name>
         <conway>
-            <formula>Y(4)</formula>
+            <formula>Y4</formula>
         </conway>
         <tag>Pyramids</tag>
         <tag>Johnson</tag>
@@ -2596,7 +2596,7 @@
         <name>Pentagonal Pyramid</name>
         <name>J2</name>
         <conway>
-            <formula>Y(5)</formula>
+            <formula>Y5</formula>
         </conway>
         <tag>Pyramids</tag>
         <tag>Johnson</tag>
@@ -8254,7 +8254,7 @@
         <dmccooey/>
         <name>Escher's Solid</name>
         <conway>
-            <formula>k(0.76)jC</formula>
+            <formula>k(h=0.76)jC</formula>
         </conway>
         <tag>concave</tag>
         <tag>Other</tag>
