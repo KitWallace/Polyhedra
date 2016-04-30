@@ -1,46 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <operators>
     <!-- conway operator -->
-    <operator char="a" function="ambo"   params=""/>
-    <operator char="b" function="bevel"   params="" description="equivalent to ta"/>
-    <operator char="c" function="chamfer"   params="r=0.333" />
-    <operator char="d" function="dual"   params="" />
-    <operator char="e" function="expand" params="h=0.5" />
-    <operator char="f" function="modulate" params="" />
-    <operator char="g" function="gyro"   params="r=0.3333,h=0.2" description="each n-face is divided into n pentagons composed of the original vertices..."/>
-    <operator char="h"  />
-    <operator char="i" function="inset_kis" params="r=0.5,h=0.1,fn=[]" description="like kis but inset from the edge by ratio r "/>
-    <operator char="j" function="join"   params="" description="equivalent to da"/>
-    <operator char="k" function="kis"  params="h=0.1, fn=[]" description="each n-face is divided into n triangles which extend to the face centroid moved normal to the face by h"/>
-    <operator char="l" />
-    <operator char="m" function="meta"   params="h=0.1" description="" />
-    <operator char="n" function="place"  params="" description="place on largest face" />
-    <operator char="o" function="ortho"   params="h=0.2" />
-    <operator char="p" function="propellor"   params="r=0.333" />
-    <operator char="q" function="cant"   params="" />
-    <operator char="r" function="reflect" params="" />
-    <operator char="s" function="snub"   params="h=0.5" />
-    <operator char="t" function="trunc"   params="r=0.25,fn=[]" />
-    <operator char="u"  />
-    <operator char="v" function="tt" description="triangulate"/>
-    <operator char="w" function="whirl"   params="r=0.3333,h=0.2" />
-    <operator char="x" function="random" params="o=0.1" description="perturb each vertice by a random vector scaled by parameter o" />
-    <operator char="y" function="pyra"   params="h=0.1"/>
+    <operator char="a" function="ambo" params=""/>
+    <operator char="b" function="bevel" params="" description="equivalent to ta"/>
+    <operator char="c" function="chamfer" params="r=0.333"/>
+    <operator char="d" function="dual" params=""/>
+    <operator char="e" function="expand" params="h=0.5"/>
+    <operator char="f" function="modulate" params=""/>
+    <operator char="g" function="gyro" params="h=0.2,r=0.3333" description="each n-face is divided into n pentagons composed of the original vertices..."/>
+    <operator char="h"/>
+    <operator char="i" function="inset_kis" params="fn=[],r=0.5,h=0.1" description="like kis but inset from the edge by ratio r "/>
+    <operator char="j" function="join" params="" description="equivalent to da"/>
+    <operator char="k" function="kis" params="fn=[],h=0.1" description="each n-face is divided into n triangles which extend to the face centroid moved normal to the face by h"/>
+    <operator char="l"/>
+    <operator char="m" function="meta" params="h=0.1" description=""/>
+    <operator char="n" function="place" params="" description="place on largest face"/>
+    <operator char="o" function="ortho" params="h=0.2"/>
+    <operator char="p" function="propellor" params="r=0.333"/>
+    <operator char="q" function="qt" description="bi-triangulate quadrilayeral faces"/>
+    <operator char="r" function="reflect" params=""/>
+    <operator char="s" function="snub" params="h=0.5"/>
+    <operator char="t" function="trunc" params="fn=[],r=0.25"/>
+    <operator char="u" function="pt" description ="tri-triangulate pentagonal faces ? whats this for?"/>
+    <operator char="v" function="tt" description="quad triangulate triangular faces "/>
+    <operator char="w" function="whirl" params="h=0.2,r=0.3333"/>
+    <operator char="x"/>
+    <operator char="y" function="pyra" params="h=0.1"/>
+    <operator char="z"/>
     
     <!-- general operations -->
-    <operator char="L" function="shell"  params="" description="Leonardo's open face form" />
-    <operator char="F" function="place"  params="" description="place on largest face" />
+    <operator char="L" function="shell" params="" description="Leonardo's open face form"/>
+    <operator char="F" function="place" params="" description="place on largest face"/>
     <operator char="N" function="canon" params="n=10" description="George Harts full canonicalisation"/>
     <operator char="K" function="plane" params="n=10" description="George Harts simple canonicalisation"/>
     <operator char="S" function="rcc" params="n=1" description="apply the Catmull-Clark smoothing operation recursively to a depth of n"/>
+    <operator char="R" function="random" params="o=0.1" description="perturb each vertice by a random vector scaled by parameter o"/>
+    <operator char="X" function="skew" params="alpha=0,beta=0" description="skew vertices by alpha in Z-X plane and beta in Z-Y plane (i think)"/>
     
     <!-- primitives  -->
     <operator char="A" function="A" params="n,h=1" description="Antiprism"/>
     <operator char="Y" function="Y" params="n,h=1" description="Pyramid"/>
-    <operator char="P" function ="P" params="n,h=1" description="Prism" />
-    <operator char="T" function ="T" params="" description="Tetrahedron"/>
-    <operator char="C" function ="C" params="" description="Cube"/>
-    <operator char="O" function ="O" params="" description="Octahedron" />
-    <operator char="D" function ="D" params="" description="Dodecahedron" />
-    <operator char="I" function ="I" params="" description="Icosahedron" />
-</operators>  
+    <operator char="P" function="P" params="n,h=1" description="Prism"/>
+    <operator char="T" function="T" params="" description="Tetrahedron"/>
+    <operator char="C" function="C" params="" description="Cube"/>
+    <operator char="O" function="O" params="" description="Octahedron"/>
+    <operator char="D" function="D" params="" description="Dodecahedron"/>
+    <operator char="I" function="I" params="" description="Icosahedron"/>
+</operators>
