@@ -5,6 +5,7 @@ let $forms := ("conway","mccooey","miller")
 let $mode := request:get-parameter("mode","index")
 let $id :=request:get-parameter("id",())
 let $variant := request:get-parameter("variant",())
+let $q := request:get-parameter("q",())
 let $format := request:get-parameter("format","html")
 let $logit := log:log-request("3d","solid-index")
 return
@@ -61,7 +62,8 @@ else
         <link href="http://kitwallace.co.uk/3d/images/poly128.png" rel="icon" sizes="128x128" />
         <link rel="shortcut icon" type="image/png" href="http://kitwallace.co.uk/3d/images/poly128.png"/>
         <script src="jscripts/sorttable.js"></script>
-
+        <script src="jscripts/poly.js"></script>
+         
         <style>
               span {{padding-right:15px}}
              .l2 {{font-size:13pt}}
@@ -79,11 +81,13 @@ else
     </head>
     <body>
         <h1>Polyhedra in OpenSCAD</h1>
-        <h2><span><a href="?mode=index">Index</a></span><span><a href="?mode=full">Full List</a></span><span><a href="?mode=create">Create Conway</a></span><span><a href="?mode=about">About</a></span></h2>
+        <h2><span><a href="?mode=index">Index</a></span><span><a href="?mode=full">Full List</a></span><span><a href="?mode=create">Create Conway</a></span><span><a href="?mode=about">About</a></span>
+        <span>Search<form action="?"  style="display:inline"><input type="hidden" name="mode" value="search" /><input type="text" name="q" size="15"  value="{$q}"/></form></span>
+        </h2>
         
         <div>
-         {if ($mode="about")
-          then 
+  {if ($mode="about")
+   then 
           <div>
           <h3>Overview</h3>
           Polyhedra are defined by several forms:
@@ -100,10 +104,10 @@ else
               <li>open (Leonardo Style) faces</li>
               <li>net</li>
            </ul>
-           with optional transforms including distortions and Catmull-Clark smoothing. <br/>
+           with optional transforms including distortions, vertex modulation and Catmull-Clark smoothing. <br/>
            
            <h3>Conway operators</h3>
-           Conway formula either stored with the polyhedron data or entered manually allow an range of operators identified by a single lower-case (for operators) or upper-case (for primitives).  Each can be parameterised, either with a single number "k5" or full parameters in parentheses "k(5,h=0.5)".
+           Conway formula either stored with the polyhedron data or entered manually allow an range of operators identified by a single lower-case (for operators) or upper-case (for primitives).  Each can be parameterised, either with a single number "k5" or full parameters in parentheses "k(fn=5,h=0.5)".
            <table>
            <tr><th>Conway code</th><th>Openscad function</th><th>Parameters</th><th>Canonicalisation</th><th>Description</th></tr>
              {for $operator in $poly:conwayOperators/operator
@@ -124,25 +128,21 @@ else
   then 
        <div>
            <h3>Index</h3>
-             <h3>Data</h3>
+             <h3>Formulae</h3>
                 <ul>
-
-                  <li><a href="?mode=form&amp;variant=mccooey">McCooey Coordinates</a></li>
                   <li><a href="?mode=form&amp;variant=conway">Conway Formulae</a></li>
-                  <li><a href="?mode=form&amp;variant=miller">Miller Indexes</a></li>
-                  
-                  
+                  <li><a href="?mode=form&amp;variant=miller">Miller Indexes</a></li> 
                  </ul>
                  <h3>Tags</h3>
                   <ul>
                     {for $tag in distinct-values($poly:solids/solid/tag)
-                     order by $tag
+                     order by upper-case($tag)
                      return
                      <li><a href="?mode=tag&amp;id={$tag}">{$tag}</a></li>
                     }                
                   </ul>
            </div>
-           else if ($mode=("tag","form","full"))
+           else if ($mode=("tag","form","full","search"))
            then       
            let $selectedSolids := 
                if ($mode="full")
@@ -150,22 +150,26 @@ else
                else if ($mode = "form") 
                then if ($variant = "miller") 
                     then $poly:solids/solid[miller]
-                    else if ($variant ="mccooey")
-                    then $poly:solids/solid[dmccooeyid]
+                    
                     else if ($variant="conway")
                     then $poly:solids/solid[conway]
                     else ()
                else if ($mode="tag")
                then $poly:solids/solid[tag = $id]
+               else if ($mode="search")
+               then $poly:solids/solid[matches(name,$q,"i")]
                else ()
                
            return
            <div> 
-               <h3>{$mode} : {$id}</h3>
+               <h3>{$mode} : {$id}  Number = {count($selectedSolids)}</h3>
                <table class="sortable">
-                <tr><th>Name</th><th>Tags</th><th>#faces</th><th>face orders</th><th>#vertices</th><th>Conway</th></tr>
+                <tr><th>Name</th><th>Tags</th><th>#vertices</th><th>#faces</th><th>face orders</th><th>#edges</th><th>Conway</th></tr>
                {for $solid in $selectedSolids
-                order by $solid/name[1]
+                let $V := number($solid//Vertices/@count)
+                let $F := number(if ($solid//Faces/@count) then $solid//Faces/@count else sum($solid//Face/@count))
+                let $E := $V + $F - 2  (:eulers law:)
+                order by upper-case($solid/name[1])
                 return
                   <tr>
                     <td><b><a href="?mode=solid&amp;id={$solid/id}">{$solid/name[1]/string()}</a></b>&#160;
@@ -174,20 +178,26 @@ else
                          where true() (: $tag != $id :)
                          return <span><a href="?mode=tag&amp;id={$tag}">{$tag/string()}</a></span>
                          }
-                    </td>                  
-                    <td>{if($solid//Faces/@count) then $solid//Faces/@count/string() else sum($solid//Face/@count)}</td>
+                    </td> 
+                    <td>{$V}</td>
+                    <td>{$F}</td>
                     <td>{string-join(for $face in $solid//Face return concat($face/@count," of ",$face/@order),",")}</td>
-                    <td>{$solid//Vertices/@count/string()}</td>
+              
+                    <td>{$E}</td>
                     <td>{string-join($solid/conway/formula,", ")}</td>
                   </tr>
               }  
               </table>
            </div>
-           else if ($mode="solid") 
-           then 
+   else if ($mode="solid") 
+   then 
             let $solid := poly:solid($id)          
             let $dual := if ($solid/dual) then $solid/dual
                          else $poly:solids/solid[dual=$id]/id
+            let $V := number($solid//Vertices/@count)
+            let $F := number(if ($solid//Faces/@count) then $solid//Faces/@count else sum($solid//Face/@count))
+            let $E := $V + $F - 2  (:eulers law:)
+        
              return
             <div>
                  <h3>{$solid/name[1]/string()}</h3>
@@ -197,13 +207,11 @@ else
                   then <tr><th>Tags</th><td>{for $tag in $solid/tag return <span><a href="?mode=tag&amp;id={$tag}">{$tag/string()}</a ></span>} </td></tr> 
                   else ()
                  }
-      
+              
                  {if(exists($solid/name[2])) then <tr><th>Other names</th><td>{for $name in $solid/name[position() > 1] return <span>{$name/string()} {if ($name/@vocab) then concat("[",$name/@vocab,"]") else () }</span>}</td></tr>  else () }
                  {if ($solid/description) then <tr><th>Description</th><td>{$solid/description/node()}</td></tr> else () }
-                 {if ($solid/url) then 
-                 <tr><th>Links</th><td>
-                 {for $url in $solid/url return <div><a href="{$url}">{$url/@source/string()}</a></div>} </td></tr>
-                 else ()}
+                 
+                
                  
                  {if ($dual) then <tr><th>Dual</th><td><a href="?mode=solid&amp;id={$dual}">{$dual/string()}</a></td></tr>  else ()}
                  {if ($solid/miller) then <tr><th>Miller</th><td>{for $f in $solid/miller/form return <div>{$f/string()} with  {$f/@symmetry/string()} symmetry</div>}</td></tr> else () }
@@ -219,22 +227,28 @@ else
                         </tr>
                       else ()
                   }
-                  {if ($solid//Faces) 
-                      then <tr><th>Faces</th><td>{ for $face in $solid//Face return <div>{$face/@count/string()} order {$face/@order/string()}</div> }</td></tr>
-                      else ()
-                  }
                   {if ($solid//Vertices) 
-                      then <tr><th>Vertices</th><td>{$solid//Vertices/@count/string()} vertices</td></tr>
+                      then <tr><th>Vertices</th><td>{$V} </td></tr>
                       else ()
                   }
+                  {if ($solid//Faces) 
+                      then <tr><th>Faces</th><td> {$F} : { for $face in $solid//Face return <span>{$face/@count/string()} order {$face/@order/string()}</span> }</td></tr>
+                      else ()
+                  }
+                  {if ($solid//Faces) 
+                      then <tr><th>Edges (via Euler)</th><td> {$E}</td></tr>
+                      else ()
+                  }
+          
                   {if ($solid/comment) then <tr><th>Comment</th><td>{$solid/comment/node()}</td></tr> else ()}
                   
-                   {if ($solid/dmccooey) 
-                   then <tr><th>David Mccooey</th><td><span><a class="external" href="http://dmccooey.com/polyhedra/{$solid/id}.html">Java Applet</a> </span>
-                            </td></tr>
-                   else () 
-                   }
-                  <tr><th>Google search</th><td>  <a class="external" href="https://www.google.co.uk/search?q={$solid/name[1]}">Web</a></td></tr>
+                  <tr><th>Links</th><td>
+                  {if ($solid/tag="dmccooey") then <div><a class="external"  href="http://dmccooey.com/polyhedra/{$solid/id}.html">David McCooey</a></div> else () }
+                  {for $url in $solid/url return <div><a class="external" href="{$url}">{string(($url/@source,"coordinates")[1])}</a></div>}
+                  <div> <a class="external" href="https://www.google.co.uk/search?q={$solid/name[1]}">Google Search</a></div>
+                 </td></tr>
+                 
+                   
           </table>
                <div class="right">
                <h3>Generate OpenSCAD</h3>
@@ -247,9 +261,13 @@ else
          {if ($solid/points) then <tr><th>Coordinates <input type="radio" name="src" value="coordinates" checked="checked">
           </input> </th> <td><span>{count($solid//point)} Vertices and {count($solid//face)} Faces </span></td></tr> else () }
          <tr><th>Conway  <input type="radio" name="src" value="conway">{if (not ($solid/points)) then attribute checked {"checked"} else () }</input>
-                 </th><td>  Formula  <select name="conway1"><option value=""> select formula</option>{for $f in $solid/conway/formula return <option>{$f}</option>}</select> 
-                            <input type="text" name="conway2" size ="10"/> 
-                            Simple Canonical <input type="text" name="plane" value="10" size="5"/> 
+                 </th><td>  Formula  
+                            {if (count($solid/conway/formula) > 1)                           
+                            then <select name="conway1"><option value=""> select formula</option>{for $f in $solid/conway/formula return <option>{$f}</option>}</select> 
+                            else ()
+                            }
+                            <input type="text" name="conway2" size ="25"  value="{if (count($solid/conway/formula)=1) then $solid/conway/formula else ()}"/> 
+                            Simple Canonical <input type="text" name="plane" value="{if($solid/conway/formula/@canonical='no') then 0 else 10}" size="5"/> 
                             True Canonical <input type="text" name="canon" value="0" size="5"/>
          </td></tr> 
          <tr><td colspan="2" style="text-align:center"><b >Transformations</b></td></tr>
@@ -261,18 +279,22 @@ else
          <tr><th>Vertex scaling </th><td>  X <input type="text" name="scale-x" value="1" size="5"/> Y <input type="text" name="scale-y" value="1" size="5"/> Z <input type="text" name="scale-z" value="1" size="5"/>
          </td>
          </tr>
+         <tr><th>Vertex spherical modulation</th><td>r is radial distance, theta is polar angle (0.180), phi is azimuth (0..360)<br/>
+         <select id="selectFunction" name="selectFunction" onchange="setFunctionText()"><option value="">select/clear function</option>{for $f in $poly:modulations/modulation return <option value="{$f/name}">{$f/name/string()}</option>}</select>
+         <textarea type="text" id="functionText" name="functionText" cols="60" rows="4">
+</textarea></td></tr>
          <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" checked="checked"/>No <input type="radio" name="place" value="no"/></td></tr>
        
-        <tr><th  title="takes ages for al but small numbers of faces">Catmull-Clark smoothing</th><td> number of iterations <input type="text" name="catmull-clark-n" value="0" size="5"/></td></tr>
+         <tr><th  title="takes ages for al but small numbers of faces">Catmull-Clark smoothing</th><td> number of iterations <input type="text" name="catmull-clark-n" value="0" size="5"/></td></tr>
          <tr><th>Overall Scale </th><td> <input type="text" name="scale" value="20" size="5"/></td></tr>
          <tr><td colspan="2" style="text-align:center"><b>Form</b></td></tr>
          <tr><th>Solid <input type="radio" name="form" value="solid"  checked="true"/>  </th><td></td></tr>
          
          <tr><th>Wire frame <input type="radio" name="form" value="wire"/></th>
-         <td>Edge Radius <input type="text" name="edge-radius" value="0.02" size="5"/> Vertex Radius <input type="text" name="vertex-radius" value="0.02" size="5"/>  # Sides <input type="text" name="edge-sides" value="10" size="5"/>
+         <td>Edge Radius <input type="text" name="edge-radius" value="0.02" size="5"/> Vertex Radius <input type="text" name="vertex-radius" value="" size="5"/>  # Sides <input type="text" name="edge-sides" value="10" size="5"/>
          </td>
          </tr>
-         <tr><th>Open <input type="radio" name="form" value="cutout"/></th><td> Depth <input type="text" name="depth" value="0.2" size="5"/> Outer inset ratio <input type="text" name="outer-inset-ratio" value="0.2" size="5"/> Inner inset ratio <input type="text" name="inner-inset-ratio" value="0.2" size="5"/>  Solid Faces (default none)<input type="text" name="cut-faces" value="" size="5"/>    
+         <tr><th>Open Faces <input type="radio" name="form" value="openface"/></th><td> Depth <input type="text" name="depth" value="0.3" size="5"/> Outer inset ratio <input type="text" name="outer-inset-ratio" value="0.3" size="5"/> Inner inset ratio <input type="text" name="inner-inset-ratio" value="0.3" size="5"/>  Open Faces (default all)<input type="text" name="cut-faces" value="" size="5"/>    
          </td>
          </tr>
          <tr><th>Net <input type="radio" name="form" value="net"/> </th>
@@ -280,12 +302,17 @@ else
     
            <tr><td colspan="2" style="text-align:center"><b>Output</b></td></tr>
          <tr><th>
-         Format </th><td><select name="format"><option value="html">HTML</option><option value="openscad">OpenSCAD</option></select>
+         Format </th><td><select name="format"><option value="openscad">OpenSCAD</option><option value="html">HTML</option></select>
           </td></tr>
           
          <tr><td colspan="2" style="text-align:center"><input type="submit" name="submit" value="Generate"/></td></tr> 
          </table>
-         </form>     
+         </form>  
+         <div id ="functionTexts" style="display:none">
+           {for $f in $poly:modulations/modulation 
+            return <div>function fmod(r,theta,phi) =  // {$f/name/string()}&#10;{$f/function/string()};</div>
+           }
+         </div>
        </div>
     </div>
   else if ($mode="create")
@@ -298,8 +325,8 @@ else
          <table border="1">
          <tr><th>Name</th><td><input type="text" name="id" size="30"/></td></tr>
          <tr><th>Conway</th><td>Formula 
-                            <input type="text" name="conway2" size ="10"/> 
-                            Simple Canonical <input type="text" name="plane" value="10" size="5"/> 
+                            <input type="text" name="conway2" size ="25"/> 
+                            Simple Canonical <input type="text" name="plane" value="0" size="5"/> 
                             True Canonical <input type="text" name="canon" value="0" size="5"/>
          </td></tr> 
          <tr><td colspan="2" style="text-align:center"><b >Transformations</b></td></tr>
@@ -311,6 +338,10 @@ else
          <tr><th>Vertex scaling </th><td>  X <input type="text" name="scale-x" value="1" size="5"/> Y <input type="text" name="scale-y" value="1" size="5"/> Z <input type="text" name="scale-z" value="1" size="5"/>
          </td>
          </tr>
+         <tr><th>Vertex spherical modulation</th><td>r is radial distance, theta is polar angle (0.180), phi is azimuth (0..360)<br/>
+         <select id="selectFunction" name="selectFunction" onchange="setFunctionText()"><option value="">select/clear function</option>{for $f in $poly:modulations/modulation return <option value="{$f/name}">{$f/name/string()}</option>}</select>
+         <textarea type="text" id="functionText" name="functionText" cols="60" rows="4">
+          </textarea></td></tr>
          <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" checked="checked"/>No <input type="radio" name="place" value="no"/></td></tr>
        
         <tr><th  title="takes ages for al but small numbers of faces">Catmull-Clark smoothing</th><td> number of iterations <input type="text" name="catmull-clark-n" value="0" size="5"/></td></tr>
@@ -322,7 +353,7 @@ else
          <td>Edge Radius <input type="text" name="edge-radius" value="0.02" size="5"/> Vertex Radius <input type="text" name="vertex-radius" value="0.02" size="5"/>  # Sides <input type="text" name="edge-sides" value="10" size="5"/>
          </td>
          </tr>
-         <tr><th>Open <input type="radio" name="form" value="cutout"/></th><td> Depth <input type="text" name="depth" value="0.2" size="5"/> Outer inset ratio <input type="text" name="outer-inset-ratio" value="0.2" size="5"/> Inner inset ratio <input type="text" name="inner-inset-ratio" value="0.2" size="5"/>  Solid Faces (default none)<input type="text" name="cut-faces" value="" size="5"/>    
+         <tr><th>Open Face <input type="radio" name="form" value="openface"/></th><td> Depth <input type="text" name="depth" value="0.3" size="5"/> Outer inset ratio <input type="text" name="outer-inset-ratio" value="0.3" size="5"/> Inner inset ratio <input type="text" name="inner-inset-ratio" value="0.3" size="5"/>  Open Faces (default all)<input type="text" name="open-faces" value="" size="5"/>    
          </td>
          </tr>
          <tr><th>Net <input type="radio" name="form" value="net"/> </th>
@@ -330,13 +361,17 @@ else
     
            <tr><td colspan="2" style="text-align:center"><b>Output</b></td></tr>
          <tr><th>
-         Format </th><td><select name="format"><option value="html">HTML</option><option value="openscad">OpenSCAD</option></select>
+         Format </th><td><select name="format"><option value="openscad">OpenSCAD</option><option value="html">HTML</option></select>
           </td></tr>
           
          <tr><td colspan="2" style="text-align:center"><input type="submit" name="submit" value="Generate"/></td></tr> 
          </table>
          </form>    
-     
+         <div id ="functionTexts" style="display:none">
+           {for $f in $poly:modulations/modulation 
+            return <div>function fmod(r,theta,phi) =  // {$f/name/string()}&#10;{$f/function/string()};</div>
+           }
+         </div>
      
      
      </div>
@@ -372,6 +407,8 @@ viewer.setParameter("BackgroundColor2","#FFFFFF");
 init();
 
 </script>
+
+<div><a href="models/{$path}">Download STL </a></div>
         </div> 
  
  else if ($mode = "make")
