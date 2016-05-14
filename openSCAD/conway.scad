@@ -42,7 +42,7 @@ Features
        transform(obj,matrix)    matrix transformation of vertices
        inset_kis(obj,ratio,height,fn)
        modulate(obj)  with global spherical function fmod()
-       openface(obj,outer_inset_ratio,inner_inset_ratio,
+       shell(obj,outer_inset_ratio,inner_inset_ratio,
             ,outer_inset,inner_inset,height,min_edge_length)
        place(obj)  on largest face -use before openface
        crop(obj,minz,maxz) - then render with wire frame
@@ -879,8 +879,7 @@ function vertex(key,entries) =   // key is an array
     entries[search([key],entries)[0]][1];
     
 // operators
-    
-function kis(obj,fn=[],h=0.1) =
+function kis(obj,fn=[],h=0,regular=false) =
 // kis each n-face is divided into n triangles which extend to the face centroid
 // existimg vertices retained
               
@@ -888,23 +887,23 @@ function kis(obj,fn=[],h=0.1) =
        pv=p_vertices(obj))
    let(newv=   // new centroid vertices    
         [for (f=pf)
-         if (selected_face(f,fn))                      
+         if (selected_face(f,fn) && ( !regular || abs(face_irregularity(f,pv) - 1.0) <0.1))                      
              let(fp=as_points(f,pv))
              [f,centroid(fp) + normal(fp) * h]    // centroid + a bit of normal
         ]) 
    let(newids=vertex_ids(newv,len(pv)))
    let(newf=
        flatten(
-         [for (face=pf)   
-            selected_face(face,fn)                     
-         //replace face with triangles
-              ? let(centroid=vertex(face,newids))
-                [for (j=[0:len(face)-1])           
-                 let(a=face[j],
-                     b=face[(j+1)%len(face)])    
+         [for (f=pf)                   
+            //replace face with triangles
+             let(centroid=vertex(f,newids))
+             centroid != undef
+               ? [for (j=[0:len(f)-1])           
+                 let(a=f[j],
+                     b=f[(j+1)%len(f)])    
                   [a,b,centroid]
                 ]
-              : [face]                              // original face
+              : [f]                              // original face
          ]) 
         )         
   
@@ -1059,7 +1058,7 @@ function rcc(s,n=0) =
          ? s
          : rcc(cc(s),n-1)
 ;            
-function pyra(obj,h=0.1) =   
+function pyra(obj,h=0.0) =   
 // very like meta but different triangles
     let(pe=p_edges(obj),
         pf=p_faces(obj),
@@ -1093,7 +1092,7 @@ function pyra(obj,h=0.1) =
      )
 ;   // end pyra 
                                  
-function ortho(obj,h=0.2) =  
+function ortho(obj,h=0) =  
 // each face is replaced with n quadralaterals based on edge midpoints vertices and centroid moved normally
     let (pe=p_edges(obj),
          pf=p_faces(obj),
@@ -1541,7 +1540,7 @@ function random(obj,o=0.1) =
 
 // triangulation operators - need to  be unified 
           
-function qt(obj) =
+function qt(obj , shortest=1) =
 // bitriangulate quadrilateral faces
 // use shortest diagonal so triangles are most nearly equilateral
   let (pf=p_faces(obj),
@@ -1551,11 +1550,14 @@ function qt(obj) =
        vertices=pv,          
        faces= flatten(
            [for (f = pf)
+            
             len(f) == 4
-              ?  norm(f[0]-f[2]) < norm(f[1]-f[3])
-                   ? [ [f[0],f[1],f[2]], [f[0],f[2],f[3]] ]  
-                   : [ [f[1],f[2],f[3]], [f[1],f[3],f[0]] ]         
-              :  [f]
+            ? let (p=as_points(f,pv))
+              let(comp = norm(p[0]-p[2]) < norm(p[1]-p[3]) ? 1 :0 )
+              comp  == shortest
+                    ? [ [f[0],f[1],f[2]], [f[0],f[2],f[3]] ]  
+                     : [ [f[1],f[2],f[3]], [f[1],f[3],f[0]] ]  
+                :  [f]
            ])
        )
 ;// end qt
@@ -1649,7 +1651,7 @@ function tt(obj) =
        )
 ;// end tt
 
-function inset_kis(obj,fn=[], r=0.5,h=-0.1) = 
+function inset_kis(obj,fn=[], r=0.5,h=0) = 
  // as kis but pyramids inset in the face 
     let (pe=p_edges(obj),
          pf=p_faces(obj),
