@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modulations>
+    <modulation>
+        <name>ellipsoid</name>
+        <function>let (e=2) [r * sqrt(pow(abs(cos(theta)),2)+ e*pow(abs(sin(theta)),2)), theta,phi]</function>
+    </modulation>
+    <modulation>
+        <name>egg</name>
+        <function>[r*(1.0 - 0.5*pow(0.8*(cos(theta+60)),2)), theta,phi]</function>
+    </modulation>
+    <modulation>
+        <name>berry</name>
+        <function>[r*(1.0+ 0.5*pow(1.1*(cos(1*theta)),3)), theta,phi]</function>
+    </modulation>
+    <modulation>
+        <name>cushion</name>
+        <function>[r*(1.0 - 0.5*pow(0.9*cos(theta),2)), theta, phi]</function>
+    </modulation>
+    <modulation>
+        <name>bauble</name>
+        <function>[r*(1- 0.5*sin(theta*2) + 0.1* sin(theta)*sqrt(abs(cos(theta*2))))
+            / (sin(theta)), theta,phi] </function>
+    </modulation>#
+    <modulation>
+        <name>bigbauble</name>
+        <function>[r*(1+abs(cos(theta*1.5))), theta,phi  ]</function>
+    </modulation>
+    <modulation>
+        <name>superegg</name>
+        <function>let (n=2.6,e=1.2)
+            [ r* (pow(
+            pow(abs(cos(theta)),n) 
+            + e*pow(abs(sin(theta)),n)
+            ,-1/n))
+            ,theta,phi]</function>
+    </modulation>
+    <modulation>
+        <name>top</name>
+        <function>[r*(1+abs(cos(theta*2))), theta,phi  ]</function>
+    </modulation>
+    <modulation>
+        <name>double</name>
+        <function>[r*(1+abs(cos(theta*2))), theta,phi  ]</function>
+    </modulation>
+</modulations>
