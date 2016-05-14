@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<groups>
+    <group>
+        <name>Thomson</name>
+        <description><div>J.J. Thomson (1904) asked: How do a small number of electrons arrange
+            themselves on the surface of a unit sphere? Various algorithms are available for
+            computing a solution as discussed in <a href="https://en.wikipedia.org/wiki/Thomson_problem">Wikipedia</a>. </div> 
+            <div>Following the approach of pmoews on <a href="http://www.thingiverse.com/thing:22663">Thingiverse</a>, these Polyhedra have been created by using the coordinates from <a
+                href="http://www-wales.ch.cam.ac.uk/~wales/CCD/Thomson/table.html">The Cambridge
+                Cluster Database</a>, converting to the format required by <a href="http://www.qhull.org/">Qhull</a> to generate the
+                faces and then converting to the XML format used for all solids.</div>
+            <div>Currently all faces are triangles even when 4 or more points lie in a plane as they do on one face of Thomson 19. 
+        The duals of these solids have irregular square, pentagonal and hexagonal faces  (use Conway formual dZ) </div>.</description>
+     </group>
+</groups>
