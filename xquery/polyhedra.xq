@@ -32,8 +32,10 @@ then
        let $solid := element solid {
                           element id  {$id},
                           element name {$id}
-                     }
-       let $cleanid := poly:clean-name($solid/id)
+                          }
+       let $name := if ($id != "") then $id else request:get-parameter("conway2",())  
+
+       let $cleanid := poly:clean-name($name)
        let $form := request:get-parameter("form",())
        let $openscad := poly:make-openscad($solid)
        return
@@ -81,9 +83,9 @@ else
     </head>
     <body>
         <h1>Polyhedra in OpenSCAD</h1>
-        <h2><span><a href="?mode=index">Index</a></span><span><a href="?mode=full">Full List</a></span><span><a href="?mode=create">Create Conway</a></span><span><a href="?mode=about">About</a></span>
+        <h3><span><a href="?mode=index">Index</a></span><span><a href="?mode=full">Full List</a></span><span><a href="?mode=create">Create Conway</a></span><span><a href="?mode=about">About</a></span>
         <span>Search<form action="?"  style="display:inline"><input type="hidden" name="mode" value="search" /><input type="text" name="q" size="15"  value="{$q}"/></form></span>
-        </h2>
+        </h3>
         
         <div>
   {if ($mode="about")
@@ -133,16 +135,16 @@ else
                   <li><a href="?mode=form&amp;variant=conway">Conway Formulae</a></li>
                   <li><a href="?mode=form&amp;variant=miller">Miller Indexes</a></li> 
                  </ul>
-                 <h3>Tags</h3>
+                 <h3>Groups</h3>
                   <ul>
-                    {for $tag in distinct-values($poly:solids/solid/tag)
-                     order by upper-case($tag)
+                    {for $group in distinct-values($poly:solids/solid/group)
+                     order by upper-case($group)
                      return
-                     <li><a href="?mode=tag&amp;id={$tag}">{$tag}</a></li>
+                     <li><a href="?mode=group&amp;id={$group}">{$group}</a></li>
                     }                
                   </ul>
            </div>
-           else if ($mode=("tag","form","full","search"))
+           else if ($mode=("group","form","full","search"))
            then       
            let $selectedSolids := 
                if ($mode="full")
@@ -154,17 +156,36 @@ else
                     else if ($variant="conway")
                     then $poly:solids/solid[conway]
                     else ()
-               else if ($mode="tag")
-               then $poly:solids/solid[tag = $id]
+               else if ($mode="group")
+               then $poly:solids/solid[group = $id]
                else if ($mode="search")
                then $poly:solids/solid[matches(name,$q,"i")]
                else ()
                
            return
            <div> 
-               <h3>{$mode} : {$id}  Number = {count($selectedSolids)}</h3>
+               <h3>{$mode} : {$id}  &#160; Count = {count($selectedSolids)} </h3>
+               {let $group := $poly:groups/group[name = $id]
+                return 
+                if ($group)
+                then <div>
+                       {$group/description/node()}
+                       {if ($group/url)
+                        then 
+                         <ul>See :
+                           {for $url in $group/url
+                            return 
+                               <li><a href="{$group/url}">{$url/@source/string()}</a></li>
+                           }
+                         </ul>
+                         else ()
+                        }
+                     </div>
+                else ()
+                }
+                <hr/>
                <table class="sortable">
-                <tr><th>Name</th><th>Tags</th><th>#vertices</th><th>#faces</th><th>face orders</th><th>#edges</th><th>Conway</th></tr>
+                <tr><th>Name</th><th>Groups</th><th>#vertices</th><th>#faces</th><th>face orders</th><th>#edges</th><th>Conway</th></tr>
                {for $solid in $selectedSolids
                 let $V := number($solid//Vertices/@count)
                 let $F := number(if ($solid//Faces/@count) then $solid//Faces/@count else sum($solid//Face/@count))
@@ -174,9 +195,9 @@ else
                   <tr>
                     <td><b><a href="?mode=solid&amp;id={$solid/id}">{$solid/name[1]/string()}</a></b>&#160;
                      <span>{string-join($solid/name[position() > 1],", ")}</span></td>
-                     <td>{for $tag in $solid/tag 
-                         where true() (: $tag != $id :)
-                         return <span><a href="?mode=tag&amp;id={$tag}">{$tag/string()}</a></span>
+                     <td>{for $group in $solid/group 
+                           (: where $group != $id :)
+                         return <span><a href="?mode=group&amp;id={$group}">{$group/string()}</a></span>
                          }
                     </td> 
                     <td>{$V}</td>
@@ -203,8 +224,8 @@ else
                  <h3>{$solid/name[1]/string()}</h3>
                  <table>
                  
-                 {if ($solid/tag) 
-                  then <tr><th>Tags</th><td>{for $tag in $solid/tag return <span><a href="?mode=tag&amp;id={$tag}">{$tag/string()}</a ></span>} </td></tr> 
+                 {if ($solid/group) 
+                  then <tr><th>Groups</th><td>{for $group in $solid/group return <span><a href="?mode=group&amp;id={$group}">{$group/string()}</a ></span>} </td></tr> 
                   else ()
                  }
               
@@ -243,9 +264,9 @@ else
                   {if ($solid/comment) then <tr><th>Comment</th><td>{$solid/comment/node()}</td></tr> else ()}
                   
                   <tr><th>Links</th><td>
-                  {if ($solid/tag="dmccooey") then <div><a class="external"  href="http://dmccooey.com/polyhedra/{$solid/id}.html">David McCooey</a></div> else () }
-                  {for $url in $solid/url return <div><a class="external" href="{$url}">{string(($url/@source,"coordinates")[1])}</a></div>}
-                  <div> <a class="external" href="https://www.google.co.uk/search?q={$solid/name[1]}">Google Search</a></div>
+                  {if ($solid/group="dmccooey") then <div><a class="external" target="_blank" href="http://dmccooey.com/polyhedra/{$solid/id}.html">David McCooey</a></div> else () }
+                  {for $url in $solid/url return <div><a class="external" target="_blank" href="{$url}">{string(($url/@source,"coordinates")[1])}</a></div>}
+                  <div> <a class="external" target="_blank" href="https://www.google.co.uk/search?q={$solid/name[1]}">Google Search</a></div>
                  </td></tr>
                  
                    
@@ -283,7 +304,7 @@ else
          <select id="selectFunction" name="selectFunction" onchange="setFunctionText()"><option value="">select/clear function</option>{for $f in $poly:modulations/modulation return <option value="{$f/name}">{$f/name/string()}</option>}</select>
          <textarea type="text" id="functionText" name="functionText" cols="60" rows="4">
 </textarea></td></tr>
-         <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" checked="checked"/>No <input type="radio" name="place" value="no"/></td></tr>
+         <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" />No <input type="radio" name="place" value="no" checked="checked"/></td></tr>
        
          <tr><th  title="takes ages for al but small numbers of faces">Catmull-Clark smoothing</th><td> number of iterations <input type="text" name="catmull-clark-n" value="0" size="5"/></td></tr>
          <tr><th>Overall Scale </th><td> <input type="text" name="scale" value="20" size="5"/></td></tr>
@@ -342,7 +363,7 @@ else
          <select id="selectFunction" name="selectFunction" onchange="setFunctionText()"><option value="">select/clear function</option>{for $f in $poly:modulations/modulation return <option value="{$f/name}">{$f/name/string()}</option>}</select>
          <textarea type="text" id="functionText" name="functionText" cols="60" rows="4">
           </textarea></td></tr>
-         <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" checked="checked"/>No <input type="radio" name="place" value="no"/></td></tr>
+         <tr><th>Place on largest face </th><td> Yes <input type="radio" name="place" value="yes" />No <input type="radio" name="place" value="no" checked="checked"/></td></tr>
        
         <tr><th  title="takes ages for al but small numbers of faces">Catmull-Clark smoothing</th><td> number of iterations <input type="text" name="catmull-clark-n" value="0" size="5"/></td></tr>
          <tr><th>Overall Scale </th><td> <input type="text" name="scale" value="20" size="5"/></td></tr>
@@ -382,7 +403,7 @@ else
                 let $model := $solid/model[path=$path]
                 return
                 <div>
-                  <h3><span><a href="?id={$solid/id}&amp;mode=solid">{$solid/name[1]/string()}</a></span> Variant<span>{$model/variant/string()}</span></h3>
+                  <h3><span><a href="?id={$solid/id}&amp;mode=solid">{$solid/name[1]/string()}</a></span> Variant <span>{$model/variant/string()}</span></h3>
                  
                   <canvas id="3d" width="640" height="480"/>
                   <script type="text/javascript" src="http://kitwallace.co.uk/js/jsc3d.js"/>
