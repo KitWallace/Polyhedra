@@ -211,15 +211,16 @@ function Y(n,h=1) =
       )
      ));
 
-function P(n,h=1) =
+function P(n,h) =
 // prisms
-   p_resize(poly(name=str("P",n) ,
+   let(h2 = h == undef ? 2*sin(180/n) : h) // size to regular polygon faces if h unspecified
+   p_resize(poly(name=str("P",n),
       vertices=concat(
         [for (i=[0:n-1])
-            [cos(i*360/n),sin(i*360/n),-h/2]
+            [cos(i*360/n),sin(i*360/n),-h2/2]
         ],
         [for (i=[0:n-1])
-            [cos(i*360/n),sin(i*360/n),h/2]
+            [cos(i*360/n),sin(i*360/n),h2/2]
         ]
       ),
       faces=concat(
@@ -231,15 +232,19 @@ function P(n,h=1) =
       )
      ));
         
-function A(n,h=1) =
+function sec2(x) = 1/(cos(x)*cos(x));
+
+function A(n,h) =
 // antiprisms
+   let(h2 = h == undef ? sqrt(1-pow(cos(90/n),-2)/4) * (2*sin(180/n)) : h) // size to regular polygon faces if h unspecified
+    echo(n, cos(90*n), h2)
    p_resize(poly(name=str("A",n) ,
       vertices=concat(
         [for (i=[0:n-1])
-            [cos(i*360/n),sin(i*360/n),-h/2]
+            [cos(i*360/n),sin(i*360/n),-h2/2]
         ],
         [for (i=[0:n-1])
-            [cos((i+1/2)*360/n),sin((i+1/2)*360/n),h/2]
+            [cos((i+1/2)*360/n),sin((i+1/2)*360/n),h2/2]
         ]
       ),
       faces=concat(
