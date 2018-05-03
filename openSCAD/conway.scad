@@ -232,8 +232,6 @@ function P(n,h) =
       )
      ));
         
-function sec2(x) = 1/(cos(x)*cos(x));
-
 function A(n,h) =
 // antiprisms
    let(h2 = h == undef ? sqrt(1-pow(cos(90/n),-2)/4) * (2*sin(180/n)) : h) // size to regular polygon faces if h unspecified
